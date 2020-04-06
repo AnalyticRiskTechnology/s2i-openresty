@@ -43,15 +43,7 @@ ENV PATH="./lua_modules/bin:/usr/local/openresty/luajit/bin/:${PATH}" \
 
 RUN \
   yum install -y luarocks-${LUAROCKS_VERSION} && \
-  luarocks install --server=http://luarocks.org/dev lua-rover && \
-  rover -v && \
-  yum -y remove luarocks && \
-  chmod g+w "${HOME}/.cache" && \
-  rm -rf /var/cache/yum && yum clean all -y && \
-  rm -rf "${HOME}/.cache/luarocks" ./*
-
-COPY scripts/build-opentracing.sh /tmp/build-opentracing.sh
-RUN /tmp/build-opentracing.sh
+  rm -rf /var/cache/yum && yum clean all -y
 
 # override entrypoint to always setup luarocks paths
 RUN ln -sf /usr/libexec/s2i/entrypoint /usr/local/bin/container-entrypoint && \
@@ -59,6 +51,7 @@ RUN ln -sf /usr/libexec/s2i/entrypoint /usr/local/bin/container-entrypoint && \
  chmod -vR g+wrX /usr/local/openresty{,-*}/nginx/{*_temp,logs}
 
 COPY ./.s2i/bin/ /usr/libexec/s2i
+RUN chmod g+wrx /usr/libexec/s2i/*
 
 # This default user is created in the openshift/base-centos7 image
 USER 1001

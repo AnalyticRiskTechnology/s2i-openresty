@@ -24,13 +24,6 @@ fi
 echo "---> Installing application source..."
 cp -Rf /tmp/src/. ./
 
-echo "---> Building application from source..."
-
-if [ -e "/tmp/src/Roverfile.lock" ]; then
-  echo "---> Installing dependencies"
-  rover install --roverfile /tmp/src/Roverfile --path . --without development test
-fi
-
 if [ -e "/tmp/src/cpanfile" ]; then
   echo "---> Installing Perl dependencies"
   cpanm --notest --installdeps /tmp/src
@@ -38,3 +31,12 @@ if [ -e "/tmp/src/cpanfile" ]; then
 fi
 
 ln --verbose --symbolic /etc/ssl/certs/ca-bundle.crt "$(pwd)/conf" 2>/dev/null || true
+
+#
+# install hooks to do more stuff
+#
+for hook in *.sh; do
+    echo "---> Running $hook"
+    source $hook
+done
+	 

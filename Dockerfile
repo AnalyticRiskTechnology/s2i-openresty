@@ -3,7 +3,7 @@
 FROM openshift/base-centos7
 
 ARG OPENRESTY_RPM_VERSION="1.15.8.1"
-ARG LUAROCKS_VERSION="2.3.0"
+ARG LUAROCKS_VERSION="3.3.0"
 
 LABEL io.k8s.description="Platform for building openresty" \
       io.k8s.display-name="s2i Openresty centos 7 - ${OPENRESTY_RPM_VERSION}" \
@@ -42,8 +42,12 @@ ENV PATH="./lua_modules/bin:/usr/local/openresty/luajit/bin/:${PATH}" \
     LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/app-root/lib"
 
 RUN \
-  yum install -y luarocks-${LUAROCKS_VERSION} && \
-  rm -rf /var/cache/yum && yum clean all -y
+  rm -rf /var/cache/yum && yum clean all -y \
+  wget https://luarocks.org/releases/luarocks-${LUAROCKS_VERSION}.tar.gz \
+  tar zxpf luarocks-${LUAROCKS_VERSION}.tar.gz \
+  cd luarocks-${LUAROCKS_VERSION} \
+  ./configure && make && make install \
+  luarocks install luasocket
 
 # override entrypoint to always setup luarocks paths
 RUN ln -sf /usr/libexec/s2i/entrypoint /usr/local/bin/container-entrypoint && \
